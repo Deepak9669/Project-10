@@ -1,8 +1,8 @@
 package com.rays.dao;
 
-import com.rays.common.BaseDaoImpl;
+import com.rays.common.BaseDAOImpl;
 import com.rays.dto.UserDTO;
 
-public class UserDAOImpl extends BaseDaoImpl<UserDTO> implements UserDAOInt {
+public class UserDAOImpl extends BaseDAOImpl<UserDTO> implements UserDAOInt {
 
 }
