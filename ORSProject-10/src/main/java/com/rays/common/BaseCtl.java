@@ -70,35 +70,30 @@ public class BaseCtl<F extends BaseForm, T extends BaseDTO, S extends BaseServic
 			return res;
 		}
 
-		try {
-			T dto = (T) form.getDto();
+		T dto = (T) form.getDto();
 
-			if (dto.getId() != null && dto.getId() > 0) {
-				T existDto1 = (T) baseService.findByUniqueKey(dto.getUniqueKey(), dto.getUniqueValue(), userContext);
-				if (existDto1 != null && dto.getId() != existDto1.getId()) {
+		if (dto.getId() != null && dto.getId() > 0) {
+			T existDto1 = (T) baseService.findByUniqueKey(dto.getUniqueKey(), dto.getUniqueValue(), userContext);
+			if (existDto1 != null && dto.getId() != existDto1.getId()) {
+				res.setSuccess(false);
+				res.addMessage(dto.getLabel() + " already exist");
+				return res;
+			}
+			baseService.update(dto, userContext);
+			res.addData(dto.getId());
+			res.addMessage(dto.getTableName() + " updated successfully..!!");
+		} else {
+			if (dto.getUniqueKey() != null && !dto.getUniqueKey().equals("")) {
+				T existDto = (T) baseService.findByUniqueKey(dto.getUniqueKey(), dto.getUniqueValue(), userContext);
+				if (existDto != null) {
 					res.setSuccess(false);
 					res.addMessage(dto.getLabel() + " already exist");
 					return res;
 				}
-				baseService.update(dto, userContext);
-				res.addData(dto.getId());
-				res.addMessage(dto.getTableName() + " updated successfully..!!");
-			} else {
-				if (dto.getUniqueKey() != null && !dto.getUniqueKey().equals("")) {
-					T existDto = (T) baseService.findByUniqueKey(dto.getUniqueKey(), dto.getUniqueValue(), userContext);
-					if (existDto != null) {
-						res.setSuccess(false);
-						res.addMessage(dto.getLabel() + " already exist");
-						return res;
-					}
-				}
-				baseService.add(dto, userContext);
-				res.addMessage(dto.getTableName() + " added successfully..!!");
 			}
-		} catch (Exception e) {
-			res.setSuccess(false);
-			res.addMessage(e.getMessage());
-			e.printStackTrace();
+			baseService.add(dto, userContext);
+			res.setSuccess(true);
+			res.addMessage(dto.getTableName() + " added successfully..!!");
 		}
 		return res;
 	}
@@ -121,29 +116,25 @@ public class BaseCtl<F extends BaseForm, T extends BaseDTO, S extends BaseServic
 			@RequestBody F form) {
 
 		ORSResponse res = new ORSResponse(true);
-		try {
-			for (String id : ids) {
-				baseService.delete(Long.parseLong(id), userContext);
-			}
-			
-			T dto = (T) form.getDto();
 
-			List<T> list = baseService.search(dto, Integer.parseInt(pageNo), pageSize, userContext);
+		for (String id : ids) {
+			baseService.delete(Long.parseLong(id), userContext);
+		}
 
-			List<T> nextList = baseService.search(dto, Integer.parseInt(pageNo + 1), pageSize, userContext);
+		T dto = (T) form.getDto();
 
-			if (list.size() == 0) {
-				res.setSuccess(false);
-				res.addMessage("Record not found..!!");
-			} else {
-				res.setSuccess(true);
-				res.addMessage("Records Deleted Successfully");
-				res.addData(list);
-				res.addResult("nextListSize", nextList.size());
-			}
-		} catch (Exception e) {
+		List<T> list = baseService.search(dto, Integer.parseInt(pageNo), pageSize, userContext);
+
+		List<T> nextList = baseService.search(dto, Integer.parseInt(pageNo + 1), pageSize, userContext);
+
+		if (list.size() == 0) {
 			res.setSuccess(false);
-			res.addMessage(e.getMessage());
+			res.addMessage("Record not found..!!");
+		} else {
+			res.setSuccess(true);
+			res.addMessage("Records Deleted Successfully");
+			res.addData(list);
+			res.addResult("nextListSize", nextList.size());
 		}
 		return res;
 	}

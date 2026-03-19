@@ -17,10 +17,7 @@ public abstract class BaseDAOImpl<T extends BaseDTO> implements BaseDAOInt<T> {
 	@PersistenceContext
 	protected EntityManager entityManager;
 
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-
+	
 	public abstract Class<T> getDTOClass();
 		
 	
